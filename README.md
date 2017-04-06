@@ -39,6 +39,7 @@ $ vim src/tests/index.js # add some debug statement to that failing `beforeEach`
 $ vim integration-test/node_modules/ilp-connector/src/lib/route-builder.js +123 # add a console.log statement to see how that error is caused
 $ ./src/bin/integration test advanced connector_first # run only the 'advanced' and 'connector_first' integration test
 $ ./src/bin/integration test # run all the integration tests
+$ psql postgres://postgres@localhost # have a look at the databases
 ```
 
 Repositories tested by the integration tests:
@@ -60,7 +61,16 @@ Roughly, what it does is:
 * if the branch is something else, try to check out that branch name on the different repositories as well. This allows you to refactor across repositories!
 * when run as `npm run integration` in the ilp-kit repository (not using this Docker image), it will load appropriate the versions of components, as specified by ilp-kit's package.json file. This allows the master branches of different components to be ahead of the ilp-kit master branch, which can be useful when we are working on a big change that will break the Interledger network. Updating ilp-kit can be postponed until all the components have been tested thoroughly.
 
-To check out a cross-repo branch, for instance `mj-currency_scale`, do the following inside the container:
+To check out a cross-repo branch, for instance `mj-currency_scale`, the easiest approach may be to create a branch on the five-bells-integration-test repo,
+and create your own Docker image for your cross-repo branch:
+```sh
+$ git branch mj-currency_scale
+$ git checkout mj-currency_scale
+$ docker build .
+```
+
+But you can also try to do the following, inside an existing five-bells-integration-test container:
+
 ```sh
 $ cd /app
 $ git branch mj-currency_scale
