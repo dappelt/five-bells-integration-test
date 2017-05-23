@@ -58,9 +58,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'alice', '100')
       yield services.assertBalance('test1.ledger2.', 'bob', '100')
       // Connectors
-      yield services.assertBalance('test1.ledger1.', 'hold', '0')
-      yield services.assertBalance('test1.ledger2.', 'hold', '0')
-      yield services.assertBalance('test1.ledger3.', 'hold', '0')
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
       yield services.assertBalance('test1.ledger2.', 'mark', '1000')
       yield services.assertBalance('test1.ledger2.', 'mary', '1000')
@@ -80,10 +77,11 @@ describe('Basic', function () {
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
-      //  -   0.01   USD (connector spread/fee)
-      //  -   0.0001 USD (connector rounding in its favor)
+      //  -   0.01   USD (0.002 default connector spread/fee)
+      //  -   0.0001 USD (default connector rounding at ledger precision)
       //  ==============
-      //     94.9849 USD
+      //     94.9899 USD
+
       yield services.assertBalance('test1.ledger1.', 'alice', '94.9899')
       yield services.assertBalance('test1.ledger1.', 'mark', '1005.0101')
 
@@ -94,7 +92,6 @@ describe('Basic', function () {
       //    105      USD
       yield services.assertBalance('test1.ledger2.', 'bob', '105')
       yield services.assertBalance('test1.ledger2.', 'mark', '995')
-      yield graph.assertZeroHold()
     })
 
     it('transfers the funds (by source amount)', function * () {
@@ -116,12 +113,11 @@ describe('Basic', function () {
       // Bob should have:
       //    100      USD
       //  +   5      USD (money from Alice)
-      //  -   0.01   USD (connector spread/fee)
+      //  -   0.01   USD (0.002 default connector spread/fee)
       //  ==============
-      //    104.9850  USD
+      //    104.99  USD
       yield services.assertBalance('test1.ledger2.', 'bob', '104.99')
       yield services.assertBalance('test1.ledger2.', 'mark', '995.01')
-      yield graph.assertZeroHold()
     })
 
     it('fails when there are insufficient source funds', function * () {
@@ -145,7 +141,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
       yield services.assertBalance('test1.ledger2.', 'bob', '100')
       yield services.assertBalance('test1.ledger2.', 'mark', '1000')
-      yield graph.assertZeroHold()
     })
 
     it('transfers a payment with 3 steps', function * () {
@@ -157,14 +152,15 @@ describe('Basic', function () {
       })
 
       // Alice should have:
-      //    100      USD
-      //  -   5      USD (sent to Bob)
-      //  -   0.01   USD (mary: connector spread/fee)
-      //  -   0.0001 USD (mary: 1/10^scale)
-      //  -   0.01   USD (mark: connector spread/fee)
-      //  -   0.0001 USD (mark: round source amount up)
+      //    100       USD
+      //  -   5       USD (sent to Bob)
+      //  -   0.01    USD (mary: 0.002% connector spread/fee)
+      //  -   0.0001  USD (mary: default rounding at ledger precision)
+      //  -   0.01    USD (mark: 0.002% connector spread/fee)
+      //  -   0.0001  USD (mary: default rounding at ledger precision)
       //  ==============
-      //     94.9748 USD
+      //     94.9798 USD
+
       yield services.assertBalance('test1.ledger1.', 'alice', '94.9798')
       yield services.assertBalance('test1.ledger1.', 'mark', '1005.0202')
 
@@ -178,7 +174,6 @@ describe('Basic', function () {
       //    105      USD
       yield services.assertBalance('test1.ledger3.', 'bob', '105')
       yield services.assertBalance('test1.ledger3.', 'mary', '995')
-      yield graph.assertZeroHold()
     })
 
     it('transfers a small amount (by destination amount)', function * () {
@@ -211,7 +206,6 @@ describe('Basic', function () {
       //    100.01   USD
       yield services.assertBalance('test1.ledger3.', 'bob', '100.01')
       yield services.assertBalance('test1.ledger3.', 'mary', '999.99')
-      yield graph.assertZeroHold()
     })
 
     it('transfers a small amount (by source amount)', function * () {
@@ -243,7 +237,6 @@ describe('Basic', function () {
       //    100.0098  USD
       yield services.assertBalance('test1.ledger3.', 'bob', '100.0098')
       yield services.assertBalance('test1.ledger3.', 'mary', '999.9902')
-      yield graph.assertZeroHold()
     })
   })
 
@@ -275,7 +268,6 @@ describe('Basic', function () {
       //    105      USD
       yield services.assertBalance('test1.ledger2.', 'bob', '105')
       yield services.assertBalance('test1.ledger2.', 'mark', '995')
-      yield graph.assertZeroHold()
     })
   })
 
@@ -305,7 +297,6 @@ describe('Basic', function () {
       //    104.99   USD
       yield services.assertBalance('test1.ledger2.', 'bob', '104.99')
       yield services.assertBalance('test1.ledger2.', 'mark', '995.01')
-      yield graph.assertZeroHold()
     })
 
     it('transfers without hold, so payment can partially succeed', function * () {
@@ -334,7 +325,6 @@ describe('Basic', function () {
       // No change, since mary doesn't have any money to send bob.
       yield services.assertBalance('test1.ledger3.', 'bob', '100')
       yield services.assertBalance('test1.ledger3.', 'mary', '0')
-      yield graph.assertZeroHold()
     })
   })
 
@@ -355,7 +345,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'alice', '95')
       yield services.assertBalance('test1.ledger1.', 'bob', '105')
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
-      yield graph.assertZeroHold()
     })
 
     it('transfers the funds (by source amount)', function * () {
@@ -374,7 +363,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'alice', '95')
       yield services.assertBalance('test1.ledger1.', 'bob', '105')
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
-      yield graph.assertZeroHold()
     })
   })
 })
