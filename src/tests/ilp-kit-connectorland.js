@@ -1,4 +1,5 @@
 'use strict'
+const request = require('superagent')
 
 const tests = require('./ilp-kit-base')
 const configFiles = [ require.resolve('../tests/data/kit1-env.list'),
@@ -8,18 +9,16 @@ const configFiles = [ require.resolve('../tests/data/kit1-env.list'),
     // require.resolve('../tests/data/kit3-env.list')]
 
 function peer(hostname) {
-  try {
-    yield request
-      .post(`https://${hostname}/api/peers`)
-      .auth('admin', 'admin')
-      .set('Content-Type', 'application/json')
-      .send({
-        hostname: 'connector.land',
-        limit: 10,
-        currencyCode: 'USD'})
-  } catch (err) {
-    throw new Error(`Error while trying to add peer ${hostname} to connector.land: ${err}`)
-  }
+  return request.post(`https://${hostname}/api/peers`)
+    .auth('admin', 'admin')
+    .set('Content-Type', 'application/json')
+    .send({
+      hostname: 'connector.land',
+      limit: 10,
+      currencyCode: 'USD'})
+    .catch (err => {
+      throw new Error(`Error while trying to add peer ${hostname} to connector.land: ${err}`)
+    })
 }
 
 tests.withSetup('connectorland', configFiles, function () {
@@ -27,4 +26,4 @@ tests.withSetup('connectorland', configFiles, function () {
     peer('wallet1.example')
     peer('wallet2.example')
   })
-}
+})
