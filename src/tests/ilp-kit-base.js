@@ -70,7 +70,7 @@ function * peer () {
   }
 }
 
-module.exports.run = function (networkName, configFiles) {
+function withSetup (networkName, configFiles, tests) {
   console.log('running', networkName, configFiles)
   describe('ILP Kit Test Suite - ' + networkName + ' -', function () {
     before(function * () {
@@ -112,6 +112,12 @@ module.exports.run = function (networkName, configFiles) {
       services.killAll()
     })
 
+    tests()
+  })
+}
+
+function testUserApi (networkName, configFiles) {
+  withSetup(networkName, configFiles, function () {
     describe('User API -', function () {
       it('Get a user', function * () {
         const config = kitManager.kits[0]
@@ -243,7 +249,11 @@ module.exports.run = function (networkName, configFiles) {
           but expected is ${expectedMail}`)
       })
     })
+  })
+}
 
+function testPaymentApi (networkName, configFiles) {
+  withSetup(networkName, configFiles, function () {
     describe('Payment API -', function () {
       it('request a quote', function * () {
         const config = kitManager.kits[0]
@@ -330,4 +340,10 @@ module.exports.run = function (networkName, configFiles) {
       })
     })
   })
+}
+
+module.exports = {
+  withSetup,
+  testUserApi,
+  testPaymentApi
 }

@@ -4,6 +4,7 @@
 KIT_HOSTS='127.0.0.1       wallet1.example
 127.0.0.1       wallet2.example
 127.0.0.1       wallet3.example
+127.0.0.1       connector.land
 '
 sudo -- sh -c -e "echo '$KIT_HOSTS' >> /etc/hosts"
 
@@ -25,4 +26,5 @@ sudo service apache2 restart
 sudo a2ensite wallet1.example
 sudo a2ensite wallet2.example
 sudo a2ensite wallet3.example
+sudo a2ensite connector.land
 sudo service apache2 reload
