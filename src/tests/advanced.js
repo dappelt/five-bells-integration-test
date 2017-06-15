@@ -286,8 +286,8 @@ describe('Advanced', function () {
       //  =================
       //    104.9699605 USD
       //    104.9699    USD (round destination down)
-      yield services.assertBalance('test2.ledger7.', 'bob', '104.9699')
-      yield services.assertBalance('test2.ledger7.', 'mike2', '995.0301')
+      yield services.assertBalance('test2.ledger7.', 'bob', '104.9697')
+      yield services.assertBalance('test2.ledger7.', 'mike2', '995.0303')
     })
 
     it('rate check (by source amount)', function * () {
