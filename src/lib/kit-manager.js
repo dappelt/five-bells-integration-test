@@ -37,7 +37,15 @@ class KitManager {
     const kitName = config.CLIENT_TITLE || 'Kit' + this.numKits()
     this.kits.push(config)
 
-    return this.services.startKit(kitName, config)
+    return this.services.startKit(kitName, config).then(() => {
+      return new Promise(resolve => {
+        // FIXME: we think removing this causes 20% intermittent integration tests failures
+        // see https://circleci.com/gh/interledgerjs/five-bells-integration-test/tree/master
+        // builds #481, #484 - #490, #492 - #498; 3 of 15 tests failed, the rest succeeded.
+        // this is probably due to https://github.com/interledgerjs/ilp-kit/issues/430
+        setTimeout(resolve, 5000)
+      })
+    })
   }
 
   * setupAccounts () {
