@@ -1,5 +1,5 @@
 {
-  "name": "five-bells-integration-test",
+  "name": "ilp-plugin-integration-test",
   "version": "6.2.0",
   "description": "A module to help with testing Five Bells components against each other",
   "main": "src/index.js",
