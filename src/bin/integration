@@ -17,7 +17,7 @@ const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
 function resolvePluginPath (pluginName) {
   return path.resolve(
-    process.cwd(),
+    dependencies.testDir,
     './integration-test/node_modules/',
     pluginName
   )
