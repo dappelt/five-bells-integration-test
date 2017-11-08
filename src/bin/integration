@@ -15,20 +15,22 @@ const dependencies = new DependencyManager({ defaultDependencies: Object.assign(
 const commands = ['all', 'setup', 'test']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
-function * mochaRun (testName) {
-  const pluginPath = path.resolve(process.cwd(), './integration-test/node_modules/', testName)
-  // install devDependencies so we can run the plugin's tests
-  yield spawn('npm', ['install', '--only=dev'],
-    {
-      cwd: pluginPath,
-      stdio: 'inherit'
-    })
+function resolvePluginPath (pluginName) {
+  return path.resolve(
+    process.cwd(),
+    './integration-test/node_modules/',
+    pluginName
+  )
+}
+
+function * mochaRun (pluginName) {
+  // const pluginPath = path.resolve(process.cwd(), './integration-test/node_modules/', testName)
   // run the plugins tests
   return spawn(mocha, [
     '--no-timeouts',
     '-r', 'co-mocha'
   ], {
-    cwd: pluginPath,
+    cwd: resolvePluginPath(pluginName),
     stdio: 'inherit'
   })
 }
@@ -47,6 +49,14 @@ Promise.coroutine(function * () {
   let code = 0
   if (command === 'all' || command === 'setup') {
     code = code || (yield dependencies.install())
+
+    // install devDependencies so we can run the plugin's tests
+    for (const plugin in pluginDependencies) {
+      yield spawn('npm', ['install', '--only=dev'], {
+        cwd: resolvePluginPath(plugin),
+        stdio: 'inherit'
+      })
+    }
   }
 
   if (command === 'all' || command === 'test') {
