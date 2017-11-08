@@ -7,22 +7,28 @@ const DependencyManager = require('five-bells-integration-test-loader').Dependen
 const spawn = require('../util').spawn
 const command = process.argv[2]
 const pluginDependencies = {
-	'ilp-plugin-xrp-paychan': 'ripple/ilp-plugin-xrp-paychan'
+  'ilp-plugin-xrp-paychan': 'ripple/ilp-plugin-xrp-paychan'
 }
 const dependencies = new DependencyManager({ defaultDependencies: Object.assign({}, {
-	'ilp-plugin-payment-channel-framework': 'interledgerjs/ilp-plugin-payment-channel-framework'
+  'ilp-plugin-payment-channel-framework': 'interledgerjs/ilp-plugin-payment-channel-framework'
 }, pluginDependencies)})
 const commands = ['all', 'setup', 'test']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
-function mochaRun (testName) {
-  console.log(path.resolve(__dirname, '../../integration-test/node_modules'))	
+function * mochaRun (testName) {
+  const pluginPath = path.resolve(process.cwd(), './integration-test/node_modules/', testName)
+  // install devDependencies so we can run the plugin's tests
+  yield spawn('npm', ['install', '--only=dev'],
+    {
+      cwd: pluginPath,
+      stdio: 'inherit'
+    })
+  // run the plugins tests
   return spawn(mocha, [
-    path.resolve(__dirname, `../tests/${testName}.js`),
     '--no-timeouts',
     '-r', 'co-mocha'
   ], {
-    cwd: dependencies.testDir,
+    cwd: pluginPath,
     stdio: 'inherit'
   })
 }
@@ -44,11 +50,11 @@ Promise.coroutine(function * () {
   }
 
   if (command === 'all' || command === 'test') {
-	for (const plugin in pluginDependencies) {
-		// if (!code) break
-		console.log('Running tests for', plugin)
-		code = code || (yield mochaRun(plugin))
-	}
+    for (const plugin in pluginDependencies) {
+      // if (!code) break
+      console.log('Running tests for', plugin)
+      code = code || (yield mochaRun(plugin))
+    }
   }
   process.exit(code)
 })().done()
