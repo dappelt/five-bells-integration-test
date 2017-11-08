@@ -7,16 +7,8 @@ const DependencyManager = require('five-bells-integration-test-loader').Dependen
 const spawn = require('../util').spawn
 const command = process.argv[2]
 const dependencies = new DependencyManager({ defaultDependencies: {
-  'five-bells-shared': 'interledgerjs/five-bells-shared',
-  'ilp-routing': 'interledgerjs/ilp-routing',
-  'five-bells-ledger': 'interledgerjs/five-bells-ledger',
-  'ilp-connector': 'interledgerjs/ilp-connector',
-  'five-bells-notary': 'interledgerjs/five-bells-notary',
-  'ilp': 'interledgerjs/ilp',
-  'ilp-core': 'interledgerjs/ilp-core',
-  'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells',
-  'ilp-kit': 'interledgerjs/ilp-kit',
-  'ilp-plugin-virtual': 'interledgerjs/ilp-plugin-virtual'
+	'ilp-plugin-payment-channel-framework': 'interledgerjs/ilp-plugin-payment-channel-framework',
+	'ilp-plugin-xrp-paychan': 'ripple/ilp-plugin-xrp-paychan'
 }})
 const commands = ['all', 'setup', 'test']
 const testSuites = ['index', 'advanced', 'connector_first', 'static_routes', 'ilp-kit']
