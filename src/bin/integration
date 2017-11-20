@@ -26,7 +26,7 @@ function resolvePluginPath (pluginName) {
 function * mochaRun (pluginName) {
   // run the plugins tests
   return spawn(mocha, [
-    '--no-timeouts',
+    '--recursive',
     '-r', 'co-mocha'
   ], {
     cwd: resolvePluginPath(pluginName),
